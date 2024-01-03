@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
 import { readDeck, readCard, updateCard } from "../utils/api";
+import CardForm from "./CardForm";
 
 // Function to edit an existing card in the deck
 function EditCard() {
@@ -21,23 +22,15 @@ function EditCard() {
         loadDeckAndCard();
     }, [deckId, cardId]);
 
-    // handleChange function to update the card state when the input fields change
-    const handleChange = (event) => {
-        setCard({
-        ...card,
-        [event.target.name]: event.target.value,
-        });
-    };
-
     // handleSubmit function to update the card in the deck with updateCard API
     const handleSubmit = async (event) => {
-        event.preventDefault();
-        await updateCard(card);
+        await updateCard(event);
         history.push(`/decks/${deck.id}`);
     };
 
-    // Simple form to take the edited card info as form data call the handleChange and
-    // handleSubmit functions to keep the state and submit
+    // Breadcrumbs for navigation are provided here
+    // The form to handle the input is in CardForm.js
+    // The card.front && card.back check is to prevent the form from showing before the card is loaded
     return (
         <div>
             <nav aria-label="breadcrumb">
@@ -54,42 +47,11 @@ function EditCard() {
                 </ol>
             </nav>
             <h2>Edit Card</h2>
-            <form onSubmit={handleSubmit}>
-                <div className="mb-3">
-                <label htmlFor="front" className="form-label">
-                    Front
-                </label>
-                <textarea
-                    className="form-control"
-                    id="front"
-                    name="front"
-                    rows="3"
-                    onChange={handleChange}
-                    value={card.front}
-                    required
-                ></textarea>
-                </div>
-                <div className="mb-3">
-                <label htmlFor="back" className="form-label">
-                    Back
-                </label>
-                <textarea
-                    className="form-control"
-                    id="back"
-                    name="back"
-                    rows="3"
-                    onChange={handleChange}
-                    value={card.back}
-                    required
-                ></textarea>
-                </div>
-                <Link to={`/decks/${deck.id}`} className="btn btn-secondary">
-                    Cancel
-                </Link>
-                <button type="submit" className="btn btn-primary mr-2">
-                    Save
-                </button>
-            </form>
+            {card.front && card.back ? (
+                <CardForm onSubmit={handleSubmit} deckId={deckId} initialValues={card} />
+            ) : (
+                <p>Loading...</p>
+            )}
         </div>
     );
 }
